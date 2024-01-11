@@ -41,12 +41,15 @@ def signup_view(request):
             return redirect('signup')
         if User.objects.filter(email=email).exists():
             messages.error(request, 'Email already exist')
-            return('signup')
+            return redirect('signup')
 
         user = User.objects.create_user(email=email, password=password)
         user.save()
+
+        login(request, user)
         messages.success(request, 'You have successfully registered')
-        return redirect('login')
+
+        return redirect('index')
 
 
     return render(request, 'user/register.html')
@@ -60,6 +63,5 @@ def logout_view(request):
     logout(request)
     messages.success(request, 'You have successfully logged out')
     return redirect('index')
-
 
 

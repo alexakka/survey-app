@@ -21,5 +21,16 @@
         <a href="{% url 'login' %}">Login</a>
         <a href="{% url 'signup' %}">Sign Up</a>
     {% endif %}
+
+    <h2>Available Surveys:</h2>
+    <ul>
+        {% for survey in surveys %}
+            <li>
+                <a href="{% url 'survey_detail' survey.id %}">{{ survey.name }}</a>
+                - {{ survey.description }}
+            </li>
+        {% endfor %}
+    </ul>
+
 </body>
 </html>

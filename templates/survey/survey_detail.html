@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ survey.name }} Details</title>
+</head>
+<body>
+    <h1>{{ survey.name }} Details</h1>
+    <p>{{ survey.description }}</p>
+
+    <h2>Questions:</h2>
+    <ul>
+        {% for question in survey.question_set.all %}
+            <li>
+                {{ question.text }}
+                <ul>
+                    {% for answer in question.answer_set.all %}
+                        <li>{{ answer.value }}</li>
+                    {% endfor %}
+                </ul>
+            </li>
+        {% endfor %}
+    </ul>
+
+    <p>Feel free to explore the details of the survey!</p>
+</body>
+</html>
