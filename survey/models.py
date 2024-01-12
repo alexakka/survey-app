@@ -23,18 +23,23 @@ class Survey(models.Model):
         return self.name
 
 
-
 class Question(models.Model):
     text = models.CharField(max_length=255)
     is_mandatory = models.BooleanField(default=True)
 
     survey = models.ForeignKey('Survey', on_delete=models.CASCADE)
 
+    def __str__(self):
+        return self.text
+
 
 class Answer(models.Model):
     value = models.CharField(max_length=255)
 
     question = models.ForeignKey('Question', on_delete=models.CASCADE)
+
+    def __str__(self):
+        return self.value
 
 
 class Respondent(models.Model):

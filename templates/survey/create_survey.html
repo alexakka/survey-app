@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ survey.name }} Details</title>
+
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f4f4;
+            color: #333;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+
+        h2 {
+            color: #007BFF;
+        }
+
+        ul.messages {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            font-weight: bold;
+        }
+
+        ul.messages li {
+            margin-bottom: 10px;
+            padding: 8px;
+            border-radius: 5px;
+        }
+
+        ul.messages .success {
+            background-color: #28a745;
+            color: #fff;
+        }
+
+        ul.messages .error {
+            background-color: #dc3545;
+            color: #fff;
+        }
+
+        form {
+            margin-top: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        label {
+            margin-bottom: 5px;
+        }
+
+        input {
+            padding: 8px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        button {
+            background-color: #007BFF;
+            color: #fff;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        #questions-container {
+            margin-top: 20px;
+        }
+
+        .question-form {
+            margin-bottom: 20px;
+        }
+
+        .answers-container input {
+            margin-bottom: 5px;
+        }
+
+        .add-answer {
+            background-color: #28a745;
+        }
+
+        .add-answer:hover {
+            background-color: #218838;
+        }
+    </style>
+</head>
+<body>
+    <h2>Create a Survey</h2>
+
+    {% if messages %}
+        <ul class="messages">
+            {% for message in messages %}
+                <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+
+    <form method="post" id="surveyForm">
+        {% csrf_token %}
+
+        <!-- Survey fields here -->
+        <label for="name">Survey Name:</label>
+        <input type="text" name="name" required>
+        <label for="description">Survey Description:</label>
+        <input type="text" name="description" required>
+        <!-- Add other survey fields as needed -->
+
+        <!-- Question forms container -->
+        <div id="questions-container">
+            <!-- Initially, include one question form -->
+            <div class="question-form">
+                <label for="question_text">Question Text:</label>
+                <input type="text" name="question_text[]" required>
+
+                <!-- Answer forms container -->
+                <div class="answers-container">
+                    <!-- Include one answer form -->
+                    <input type="text" name="answer_text[]" required>
+                </div>
+                <!-- End of Answer forms container -->
+
+                <button type="button" class="add-answer">Add Answer</button>
+            </div>
+            <!-- End of Question form -->
+        </div>
+        <!-- End of Question forms container -->
+
+        <button type="button" id="add-question">Add Question</button>
+        <input type="submit" value="Submit">
+    </form>
+
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            // Add more question forms
+            $("#add-question").click(function() {
+                var newQuestionForm = $(".question-form:first").clone();
+                newQuestionForm.find("input[type=text]").val("");
+                newQuestionForm.find(".answers-container").empty(); // Clear answer fields
+                $("#questions-container").append(newQuestionForm);
+            });
+
+            // Add more answer fields within a question form
+            $("#questions-container").on("click", ".add-answer", function() {
+                var newAnswerField = '<input type="text" name="answer_text[]" required>';
+                $(this).siblings(".answers-container").append(newAnswerField);
+            });
+        });
+    </script>
+</body>
+</html>

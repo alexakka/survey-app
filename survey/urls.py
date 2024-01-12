@@ -1,7 +1,8 @@
 from django.urls import path
-from .views import survey_detail
+from . import views
+
 
 urlpatterns = [
-    # Other URL patterns
-    path('survey/<int:survey_id>/', survey_detail, name='survey_detail'),
+    path('survey/<int:survey_id>/', views.survey_detail, name='survey_detail'),
+    path('create_survey/', views.create_survey, name='create_survey'),
 ]
