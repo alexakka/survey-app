@@ -56,7 +56,11 @@ class Response(models.Model):
     survey = models.ForeignKey('Survey', on_delete=models.CASCADE)
     question = models.ForeignKey('Question', on_delete=models.CASCADE)
     answer = models.ForeignKey('Answer', on_delete=models.CASCADE)
-    respondent = models.ForeignKey('Respondent', on_delete=models.CASCADE)
+    respondent = models.ForeignKey(User, on_delete=models.CASCADE)
+
+
+    def __str__(self):
+        return self.answer.value
 
 
 # class SurveyResponse(models.Model):

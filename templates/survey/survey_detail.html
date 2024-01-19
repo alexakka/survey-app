@@ -3,68 +3,31 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ survey.name }} Details</title>
-
-    <style>
-        body {
-            font-family: 'Arial', sans-serif;
-            background-color: #f4f4f4;
-            color: #333;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
-        }
-
-        h1, h2 {
-            color: #007BFF;
-        }
-
-        p {
-            margin-bottom: 20px;
-        }
-
-        ul {
-            list-style-type: none;
-            padding: 0;
-        }
-
-        li {
-            margin-bottom: 10px;
-        }
-
-        a {
-            text-decoration: none;
-            color: #007BFF;
-            margin-right: 10px;
-        }
-
-        a:hover {
-            text-decoration: underline;
-        }
-    </style>
+    <title>{{ survey.name }} - Survey Detail</title>
 </head>
 <body>
-    <h1>{{ survey.name }} Details</h1>
-    <p>{{ survey.description }}</p>
 
-    <h2>Questions:</h2>
-    <ul>
-        {% for question in survey.question_set.all %}
-            <li>
-                {{ question.text }}
-                <ul>
-                    {% for answer in question.answer_set.all %}
-                        <li>{{ answer.value }}</li>
-                    {% endfor %}
-                </ul>
-            </li>
-        {% endfor %}
-    </ul>
+<h1>{{ survey.name }} - Survey Detail</h1>
+<p>{{ survey.description }}</p>
 
-    <p>Feel free to explore the details of the survey!</p>
+<form method="post" action="{% url 'submit_response' survey.id %}">
+    {% csrf_token %}
+
+    {% for question in survey.question_set.all %}
+        <fieldset>
+            <legend>{{ question.text }}</legend>
+
+            {% for answer in question.answer_set.all %}
+                <label>
+                    <input type="radio" name="question_{{ question.id }}" value="{{ answer.id }}">
+                    {{ answer.value }}
+                </label><br>
+            {% endfor %}
+        </fieldset>
+    {% endfor %}
+
+    <input type="submit" value="Submit">
+</form>
+
 </body>
 </html>

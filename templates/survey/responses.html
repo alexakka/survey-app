@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Survey Responses</title>
+</head>
+<body>
+
+<h1>Survey Responses</h1>
+
+{% if responses %}
+    <table border="1">
+        <thead>
+            <tr>
+                <th>Response ID</th>
+                <th>Survey Name</th>
+                <th>Question</th>
+                <th>Answer</th>
+                <th>Respondent</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for response in responses %}
+                <tr>
+                    <td>{{ response.id }}</td>
+                    <td>{{ response.survey.name }}</td>
+                    <td>{{ response.question.text }}</td>
+                    <td>{{ response.answer.value }}</td>
+                    <td>{{ response.respondent.get_full_name }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% else %}
+    <p>No responses available for this survey.</p>
+{% endif %}
+
+</body>
+</html>
