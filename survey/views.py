@@ -1,6 +1,7 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+from django.urls import reverse
 
 from .models import Survey, Question, Answer, Response
 
@@ -36,7 +37,26 @@ def create_survey(request):
 
 def survey_detail(request, survey_id):
     survey = get_object_or_404(Survey, pk=survey_id)
-    return render(request, 'survey/survey_detail.html', {'survey': survey})
+
+    is_author = request.user == survey.author
+    return render(request, 'survey/survey_detail.html', {'survey': survey, 'is_author': is_author})
+
+
+
+def complete_survey(request, survey_id):
+    survey = get_object_or_404(Survey, pk=survey_id)
+
+    respondent = Response.objects.filter(survey=survey, respondent=request.user)
+
+    # check if user already complete a survey
+    if respondent.exists():
+        # re-initialising the storage to clear it
+        request._messages = messages.storage.default_storage(request)
+
+        messages.error(request, "You already complete the survey!")
+        return redirect(reverse('survey_detail', args=[survey_id]))
+
+    return render(request, 'survey/complete_survey.html', {'survey': survey})
 
 
 def show_all_responses(request, survey_id):
@@ -47,6 +67,7 @@ def show_all_responses(request, survey_id):
 
 def submit_response(request, survey_id):
     if request.method == 'POST':
+
         survey = get_object_or_404(Survey, pk=survey_id)
 
         for question in survey.question_set.all():
@@ -58,5 +79,5 @@ def submit_response(request, survey_id):
 
         return redirect('index')
 
-    return redirect('survey_detail', survey_id=survey_id)
+    return redirect('complete_survey', survey_id=survey_id)
 

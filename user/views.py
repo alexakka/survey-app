@@ -10,6 +10,9 @@ def login_view(request):
         email = request.POST['email']
         password = request.POST['password']
 
+        # re-initialising the storage to clear it
+        request._messages = messages.storage.default_storage(request)
+
         if email == '' or password == '':
             messages.error(request, 'Please fill out all fields')
             return redirect('login')
@@ -32,6 +35,9 @@ def signup_view(request):
         email = request.POST['email']
         password = request.POST['password']
         confirm_password = request.POST['confirm_password']
+
+        # re-initialising the storage to clear it
+        request._messages = messages.storage.default_storage(request)
 
         if email == '' or password == '' or confirm_password == '':
             messages.error(request, 'Please fill out all fields')

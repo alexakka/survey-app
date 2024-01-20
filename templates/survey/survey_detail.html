@@ -3,31 +3,110 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ survey.name }} - Survey Detail</title>
+    <title>{{ survey.name }} - Survey Details</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f4f4;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        h1 {
+            color: #4285F4; /* Google Blue */
+        }
+
+        p {
+            margin-bottom: 20px;
+        }
+
+        table {
+            width: 80%;
+            max-width: 800px;
+            background-color: #fff;
+            border-collapse: collapse;
+            margin-top: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        th {
+            background-color: #4285F4; /* Google Blue */
+            color: #fff;
+        }
+
+        a {
+            color: #4285F4; /* Google Blue */
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        .redirect-button {
+            background-color: #4285F4; /* Google Blue */
+            color: #fff;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+
+        .redirect-button:hover {
+            background-color: #0056b3;
+        }
+    </style>
 </head>
 <body>
 
-<h1>{{ survey.name }} - Survey Detail</h1>
-<p>{{ survey.description }}</p>
+    <h1>{{ survey.name }} - Survey Details</h1>
+    <p>{{ survey.description }}</p>
 
-<form method="post" action="{% url 'submit_response' survey.id %}">
-    {% csrf_token %}
-
-    {% for question in survey.question_set.all %}
-        <fieldset>
-            <legend>{{ question.text }}</legend>
-
-            {% for answer in question.answer_set.all %}
-                <label>
-                    <input type="radio" name="question_{{ question.id }}" value="{{ answer.id }}">
-                    {{ answer.value }}
-                </label><br>
-            {% endfor %}
-        </fieldset>
+    <!-- Display Django messages -->
+    {% for message in messages %}
+        <div class="message {{ message.tags }}">
+            {{ message }}
+        </div>
     {% endfor %}
 
-    <input type="submit" value="Submit">
-</form>
+    <table>
+        <tr>
+            <th>Question</th>
+            <th>Answers</th>
+        </tr>
+        {% for question in survey.question_set.all %}
+            <tr>
+                <td>{{ question.text }}</td>
+                <td>
+                    {% for answer in question.answer_set.all %}
+                        {{ answer.value }}{% if not forloop.last %}, {% endif %}
+                    {% endfor %}
+                </td>
+            </tr>
+        {% endfor %}
+    </table>
 
-</body>
+    <!-- Use the reverse function to generate the URL for complete_survey -->
+    {% if user.is_authenticated %}
+        <button class="redirect-button" onclick="window.location.href='{% url 'complete_survey' survey.id  %}'">Complete Survey</button>
+    {% else %}
+    <button class="redirect-button" onclick="window.location.href='{% url 'signup'%}'">Sign Up</button>
+    {% endif %}
+    {% if is_author %}
+    <button class="redirect-button" onclick="window.location.href='{% url 'responses' survey.id  %}'">Check Responses</button>
+    {% endif %}
+    </body>
 </html>

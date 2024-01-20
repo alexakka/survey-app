@@ -19,7 +19,7 @@
         }
 
         h2 {
-            color: #007BFF;
+            color: #4285F4; /* Google Blue */
         }
 
         ul.messages {
@@ -36,24 +36,28 @@
         }
 
         ul.messages .success {
-            background-color: #28a745;
+            background-color: #34A853; /* Google Green */
             color: #fff;
         }
 
         ul.messages .error {
-            background-color: #dc3545;
+            background-color: #EA4335; /* Google Red */
             color: #fff;
         }
 
         form {
             margin-top: 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
+            width: 80%;
+            max-width: 600px;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
 
         label {
             margin-bottom: 5px;
+            color: #333;
         }
 
         input {
@@ -61,10 +65,11 @@
             margin-bottom: 10px;
             border: 1px solid #ccc;
             border-radius: 4px;
+            width: 100%;
         }
 
         button {
-            background-color: #007BFF;
+            background-color: #4285F4; /* Google Blue */
             color: #fff;
             padding: 10px 20px;
             border: none;
@@ -89,11 +94,11 @@
         }
 
         .add-answer {
-            background-color: #28a745;
+            background-color: #34A853; /* Google Green */
         }
 
         .add-answer:hover {
-            background-color: #218838;
+            background-color: #2E8B57;
         }
     </style>
 </head>
@@ -112,23 +117,20 @@
         {% csrf_token %}
 
         <!-- Survey fields here -->
-        <label for="name">Survey Name:</label>
-        <input type="text" name="name" required>
-        <label for="description">Survey Description:</label>
-        <input type="text" name="description" required>
+        <input type="text" name="name" placeholder="Survey Name" required>
+        <input type="text" name="description"  placeholder="Description" required>
         <!-- Add other survey fields as needed -->
 
         <!-- Question forms container -->
         <div id="questions-container">
             <!-- Initially, include one question form -->
             <div class="question-form">
-                <label for="question_text">Question Text:</label>
-                <input type="text" name="question_text[]" required>
+                <input type="text" name="question_text[]"  placeholder="Question" required>
 
                 <!-- Answer forms container -->
                 <div class="answers-container">
                     <!-- Include one answer form -->
-                    <input type="text" name="answer_text[]" required>
+                    <input type="text" name="answer_text[]"  placeholder="Answer" required>
                 </div>
                 <!-- End of Answer forms container -->
 
