@@ -61,13 +61,17 @@
             </tr>
         </thead>
         <tbody>
+
             {% for response in responses %}
-                <tr>
-                    <td>{{ response.survey.name }}</td>
-                    <td>{{ response.question.text }}</td>
-                    <td>{{ response.answer.value }}</td>
-                    <td>{{ response.respondent.get_full_name }}</td>
-                </tr>
+
+            <tr>
+
+                <td>{{ response.survey.name }}</td>
+                <td>{{ response.question.text }}</td>
+                <td>{{ response.answer.value }}</td>
+                <td><a href="{% url 'respondent_response' response.survey.id response.respondent.id %}">{{ response.respondent.get_full_name }}</a></td>
+
+            </tr>
             {% endfor %}
         </tbody>
     </table>

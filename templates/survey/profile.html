@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Profile</title>
+
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f4f4;
+            color: #333;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+
+        h2, h3 {
+            color: #007BFF;
+        }
+
+        p {
+            margin-bottom: 10px;
+        }
+
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        li {
+            margin-bottom: 20px;
+        }
+
+        strong {
+            font-weight: bold;
+            color: #007BFF;
+            cursor: pointer;
+        }
+
+        strong:hover {
+            text-decoration: underline;
+        }
+
+        .check-responses-btn {
+            background-color: #28a745;
+            color: #fff;
+            padding: 5px 10px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-left: 10px;
+        }
+
+        .check-responses-btn:hover {
+            background-color: #218838;
+        }
+    </style>
+</head>
+<body>
+
+    <h2>User Profile</h2>
+
+    <h3>User Information</h3>
+    <p>Email: {{ user.email }}</p>
+    <p>Name: {{ user.get_full_name }}</p>
+    <!-- Add other user information as needed -->
+
+    <h3>Surveys Created by User</h3>
+    {% if user.survey_set.all %}
+        <ul>
+            {% for survey in user.survey_set.all %}
+                <li>
+                    <a href="{% url 'survey_detail' survey.id %}">
+                        <strong>{{ survey.name }}</strong>
+                    </a>
+                    <a href="{% url 'responses' survey.id %}" class="check-responses-btn">
+                        Check Responses
+                    </a><br>
+                    Description: {{ survey.description }}<br>
+                    Number Of Responses: {{ survey.number_of_responses }}<br>
+                    Created on: {{ survey.creating_date }}<br>
+                    Start Date: {{ survey.start_date }}<br>
+                    End Date: {{ survey.end_date }}<br>
+                    <!-- Add other survey information as needed -->
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No surveys created by this user.</p>
+    {% endif %}
+
+</body>
+</html>

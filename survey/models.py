@@ -8,10 +8,16 @@ class Survey(models.Model):
     name = models.CharField(max_length=255, blank=False)
     description = models.CharField(max_length=1024)
     creating_date = models.DateTimeField(default=timezone.now)
-    start_date = models.DateTimeField(default=timezone.now)
-    end_date = models.DateTimeField(default=timezone.now() + timezone.timedelta(days=28))
-    is_available = models.BooleanField(default=False)
+    starting_date = models.DateTimeField(default=timezone.now)
+    ending_date = models.DateTimeField(default=timezone.now() + timezone.timedelta(days=28))
+    number_of_responses = models.IntegerField(default=0)
     author = models.ForeignKey(User, on_delete=models.CASCADE)
+
+    @property
+    def is_available(self):
+        if timezone.now > self.ending_date:
+            return False
+        return True
 
 
     class Meta:

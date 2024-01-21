@@ -1,11 +1,9 @@
 from django.shortcuts import render
+from django.utils import timezone
 from survey.models import Survey
 
 
 def index(request):
-    surveys = Survey.objects.all()
+    surveys = Survey.objects.all().filter(ending_date__gt=timezone.now())
 
-    # You can add additional logic here if needed
-
-    # Render the survey details using a template
     return render(request, 'index.html', {'surveys': surveys})

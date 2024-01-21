@@ -37,7 +37,6 @@ def create_survey(request):
 
 def survey_detail(request, survey_id):
     survey = get_object_or_404(Survey, pk=survey_id)
-
     is_author = request.user == survey.author
     return render(request, 'survey/survey_detail.html', {'survey': survey, 'is_author': is_author})
 
@@ -59,9 +58,15 @@ def complete_survey(request, survey_id):
     return render(request, 'survey/complete_survey.html', {'survey': survey})
 
 
+def respondent_response(request, survey_id, respondent_id):
+    responses = Response.objects.all().filter(survey=survey_id, respondent=respondent_id)
+    return render(request, "survey/respondent_response.html", {"responses": responses})
+
+
 def show_all_responses(request, survey_id):
-    all_responses = Response.objects.filter(survey=survey_id)
-    all_responses.group_by = ['respondent']
+    # all_responses = Response.objects.filter(survey=survey_id)
+    # all_responses.group_by = ['respondent']
+    all_responses = Response.objects.filter(survey=survey_id).distinct("respondent")
     return render(request, "survey/responses.html", {"responses": all_responses})
 
 
@@ -69,6 +74,9 @@ def submit_response(request, survey_id):
     if request.method == 'POST':
 
         survey = get_object_or_404(Survey, pk=survey_id)
+        # adding one respondent to field
+        survey.number_of_responses += 1
+        survey.save()
 
         for question in survey.question_set.all():
             answer_id = request.POST.get(f'question_{question.id}')
@@ -81,3 +89,9 @@ def submit_response(request, survey_id):
 
     return redirect('complete_survey', survey_id=survey_id)
 
+
+
+@login_required
+def profile(request):
+    user = request.user
+    return render(request, 'survey/profile.html', {'user': user})
