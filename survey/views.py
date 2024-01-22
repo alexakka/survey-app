@@ -35,15 +35,42 @@ def create_survey(request):
     return render(request, 'survey/create_survey.html')
 
 
-def survey_detail(request, survey_id):
-    survey = get_object_or_404(Survey, pk=survey_id)
+@login_required
+def edit_survey(request, survey_slug):
+    survey = get_object_or_404(Survey, slug=survey_slug)
+
+    if request.method != 'POST':
+        return render(request, 'survey/edit_survey.html', {'survey': survey})
+    else:
+        survey.name = request.POST['name']
+        survey.description = request.POST['description']
+
+        question_texts = request.POST.getlist('question_text[]')
+        answer_texts = request.POST.getlist('answer_text[]')
+        print(question_texts)
+        j = 0
+        for question, text in zip(survey.question_set.all(), question_texts):
+            question.text = text
+
+            for answer, value in zip(question.answer_set.all(), answer_texts[j:j + len(answer_texts) // len(question_texts)]):
+                answer.value = value
+                answer.save()
+
+            question.save()
+            j = j + len(answer_texts) // len(question_texts)
+
+        survey.save()
+        return redirect('profile')
+
+
+def survey_detail(request, survey_slug):
+    survey = get_object_or_404(Survey, slug=survey_slug)
     is_author = request.user == survey.author
     return render(request, 'survey/survey_detail.html', {'survey': survey, 'is_author': is_author})
 
 
-
-def complete_survey(request, survey_id):
-    survey = get_object_or_404(Survey, pk=survey_id)
+def complete_survey(request, survey_slug):
+    survey = get_object_or_404(Survey, slug=survey_slug)
 
     respondent = Response.objects.filter(survey=survey, respondent=request.user)
 
@@ -53,27 +80,31 @@ def complete_survey(request, survey_id):
         request._messages = messages.storage.default_storage(request)
 
         messages.error(request, "You already complete the survey!")
-        return redirect(reverse('survey_detail', args=[survey_id]))
+        return redirect(reverse('survey_detail', args=[survey_slug]))
 
     return render(request, 'survey/complete_survey.html', {'survey': survey})
 
 
-def respondent_response(request, survey_id, respondent_id):
-    responses = Response.objects.all().filter(survey=survey_id, respondent=respondent_id)
-    return render(request, "survey/respondent_response.html", {"responses": responses})
 
+def show_all_responses(request, survey_slug):
+    survey = get_object_or_404(Survey, slug=survey_slug)
 
-def show_all_responses(request, survey_id):
-    # all_responses = Response.objects.filter(survey=survey_id)
-    # all_responses.group_by = ['respondent']
-    all_responses = Response.objects.filter(survey=survey_id).distinct("respondent")
+    all_responses = Response.objects.filter(survey=survey).distinct("respondent")
     return render(request, "survey/responses.html", {"responses": all_responses})
 
 
-def submit_response(request, survey_id):
+def respondent_response(request, survey_slug, respondent_id):
+    survey = get_object_or_404(Survey, slug=survey_slug)
+
+    responses = Response.objects.all().filter(survey=survey, respondent=respondent_id)
+    return render(request, "survey/respondent_response.html", {"responses": responses})
+
+
+
+def submit_response(request, survey_slug):
     if request.method == 'POST':
 
-        survey = get_object_or_404(Survey, pk=survey_id)
+        survey = get_object_or_404(Survey, slug=survey_slug)
         # adding one respondent to field
         survey.number_of_responses += 1
         survey.save()
@@ -82,13 +113,17 @@ def submit_response(request, survey_id):
             answer_id = request.POST.get(f'question_{question.id}')
             answer = get_object_or_404(Answer, pk=answer_id)
 
-            response = Response(survey=survey, question=question, answer=answer, respondent=request.user)
+            response = Response(
+                survey=survey,
+                question=question,
+                answer=answer,
+                respondent=request.user
+                )
             response.save()
 
         return redirect('index')
 
-    return redirect('complete_survey', survey_id=survey_id)
-
+    return redirect('complete_survey', survey_slug=survey_slug)
 
 
 @login_required

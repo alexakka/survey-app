@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Survey: {{ survey.name }}</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f4f4;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        h2 {
+            color: #4285F4; /* Google Blue */
+        }
+
+        form {
+            width: 80%;
+            max-width: 600px;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            margin-top: 20px;
+        }
+
+        label {
+            margin-top: 10px;
+            display: block;
+            font-weight: bold;
+        }
+
+        input[type="text"],
+        textarea {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            margin-bottom: 5px;
+            box-sizing: border-box;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        .question {
+            border-bottom: 1px solid #ddd; /* Line between questions */
+            padding-bottom: 5px; /* Add some spacing between questions */
+        }
+
+        button {
+            background-color: #4285F4; /* Google Blue */
+            color: #fff;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <h2>Edit Survey: {{ survey.name }}</h2>
+
+    {% if messages %}
+        <ul class="messages">
+            {% for message in messages %}
+                <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+
+    <form method="post" action="{% url 'edit_survey' survey.slug %}">
+        {% csrf_token %}
+
+        <input type="text" id="name" name="name" value="{{ survey.name }}" required>
+        <textarea id="description" name="description" required>{{ survey.description }}</textarea>
+
+        {% for question in survey.question_set.all %}
+            <div class="question">
+                <label for="question_text_{{ question.id }}">Question:</label>
+                <input type="text" id="question_text_{{ question.id }}" name="question_text[]" value="{{ question.text }}" required>
+
+                {% for answer in question.answer_set.all %}
+                    <input type="text" id="answer_text_{{ answer.id }}" name="answer_text[]" value="{{ answer.value }}" required>
+                {% endfor %}
+            </div>
+        {% endfor %}
+
+        <button type="submit">Save Changes</button>
+    </form>
+</body>
+</html>

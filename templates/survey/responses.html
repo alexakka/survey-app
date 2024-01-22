@@ -69,7 +69,7 @@
                 <td>{{ response.survey.name }}</td>
                 <td>{{ response.question.text }}</td>
                 <td>{{ response.answer.value }}</td>
-                <td><a href="{% url 'respondent_response' response.survey.id response.respondent.id %}">{{ response.respondent.get_full_name }}</a></td>
+                <td><a href="{% url 'respondent_response' response.survey.slug response.respondent.id %}">{{ response.respondent.get_full_name }}</a></td>
 
             </tr>
             {% endfor %}

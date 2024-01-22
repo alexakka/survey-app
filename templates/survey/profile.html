@@ -71,28 +71,32 @@
     <!-- Add other user information as needed -->
 
     <h3>Surveys Created by User</h3>
-    {% if user.survey_set.all %}
-        <ul>
-            {% for survey in user.survey_set.all %}
-                <li>
-                    <a href="{% url 'survey_detail' survey.id %}">
-                        <strong>{{ survey.name }}</strong>
-                    </a>
-                    <a href="{% url 'responses' survey.id %}" class="check-responses-btn">
-                        Check Responses
-                    </a><br>
-                    Description: {{ survey.description }}<br>
-                    Number Of Responses: {{ survey.number_of_responses }}<br>
-                    Created on: {{ survey.creating_date }}<br>
-                    Start Date: {{ survey.start_date }}<br>
-                    End Date: {{ survey.end_date }}<br>
-                    <!-- Add other survey information as needed -->
-                </li>
-            {% endfor %}
-        </ul>
-    {% else %}
-        <p>No surveys created by this user.</p>
-    {% endif %}
+{% if user.survey_set.all %}
+    <ul>
+        {% for survey in user.survey_set.all %}
+            <li>
+                <a href="{% url 'survey_detail' survey.slug %}">
+                    <strong>{{ survey.name }}</strong>
+                </a>
+                <a href="{% url 'responses' survey.slug %}" class="check-responses-btn">
+                    Check Responses
+                </a>
+                <a href="{% url 'edit_survey' survey.slug %}" class="edit-survey-btn">
+                    Edit Survey
+                </a><br>
+                Description: {{ survey.description }}<br>
+                Number Of Responses: {{ survey.number_of_responses }}<br>
+                Created on: {{ survey.creating_date }}<br>
+                Start Date: {{ survey.start_date }}<br>
+                End Date: {{ survey.end_date }}<br>
+                <!-- Add other survey information as needed -->
+            </li>
+        {% endfor %}
+    </ul>
+{% else %}
+    <p>No surveys created by this user.</p>
+{% endif %}
+
 
 </body>
 </html>

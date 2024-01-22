@@ -113,7 +113,7 @@
         </ul>
     {% endif %}
 
-    <form method="post" id="surveyForm">
+    <form method="post" action="{% url 'create_survey' %}" id="surveyForm">
         {% csrf_token %}
 
         <!-- Survey fields here -->

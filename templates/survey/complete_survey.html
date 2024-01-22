@@ -73,7 +73,7 @@
 <h1>{{ survey.name }} - Complete Survey</h1>
 <p>{{ survey.description }}</p>
 
-<form method="post" action="{% url 'submit_response' survey.id %}">
+<form method="post" action="{% url 'submit_response' survey.slug %}">
     {% csrf_token %}
 
     {% for question in survey.question_set.all %}
