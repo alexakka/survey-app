@@ -157,7 +157,7 @@
 
             // Add more answer fields within a question form
             $("#questions-container").on("click", ".add-answer", function() {
-                var newAnswerField = '<input type="text" name="answer_text[]" required>';
+                var newAnswerField = '<input type="text" name="answer_text[]" placeholder="Answer" required>';
                 $(this).siblings(".answers-container").append(newAnswerField);
             });
         });

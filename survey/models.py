@@ -72,15 +72,3 @@ class Respondent(models.Model):
 
     age = models.IntegerField(blank=False)
     sex = models.CharField(max_length=1, choices=SEXES)
-
-
-
-
-
-# class SurveyResponse(models.Model):
-#     pass
-
-
-
-# class QuestionOrder(models.Model):
-#     pass
