@@ -58,7 +58,6 @@ class Response(models.Model):
     question = models.ForeignKey('Question', on_delete=models.CASCADE)
     answer = models.ForeignKey('Answer', on_delete=models.CASCADE)
     respondent = models.ForeignKey(User, on_delete=models.CASCADE)
-    # spended_time = models.TimeField(blank=True)
 
     def __str__(self):
         return self.answer.value

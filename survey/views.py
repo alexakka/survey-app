@@ -1,4 +1,5 @@
-from django.shortcuts import render, get_object_or_404, redirect
+import csv
+from django.shortcuts import render, get_object_or_404, redirect, HttpResponse
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.urls import reverse
@@ -127,6 +128,31 @@ def submit_response(request, survey_slug):
 
 
 @login_required
-def profile(request):
-    user = request.user
-    return render(request, 'survey/profile.html', {'user': user})
+def export_responses_csv(request, survey_slug):
+
+    responses = Response.objects.filter(survey__slug=survey_slug)
+    if request.user == responses[0].survey.author:
+        filename = f"{survey_slug}_responses.csv"
+
+        # Create the HttpResponse object with CSV content.
+        response = HttpResponse(content_type='text/csv')
+        response['Content-Disposition'] = f'attachment; filename="{filename}"'
+
+        # Create CSV writer
+        writer = csv.writer(response)
+
+        # Write header row
+        writer.writerow(['Survey', 'Question', 'Answer', 'Respondent'])
+
+        # Write data rows
+        for response_obj in responses:
+            writer.writerow(
+                [response_obj.survey.name,
+                response_obj.question.text,
+                response_obj.answer.value,
+                response_obj.respondent.first_name + ' ' + response_obj.respondent.last_name]
+                )
+
+        return response
+
+    return HttpResponse('You not the owner of the survey')

@@ -84,6 +84,8 @@
                 <a href="{% url 'edit_survey' survey.slug %}" class="edit-survey-btn">
                     Edit Survey
                 </a><br>
+                <a href="{% url 'export_responses_csv' survey.slug %}" class="edit-survey-btn" download> Download
+                </a>
                 Description: {{ survey.description }}<br>
                 Number Of Responses: {{ survey.number_of_responses }}<br>
                 Created on: {{ survey.creating_date }}<br>
