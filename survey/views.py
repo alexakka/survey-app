@@ -129,8 +129,9 @@ def submit_response(request, survey_slug):
 
 @login_required
 def export_responses_csv(request, survey_slug):
+    responses = Response.objects.filter(survey__slug=survey_slug).order_by('answer')
 
-    responses = Response.objects.filter(survey__slug=survey_slug)
+    # Check the survey author
     if request.user == responses[0].survey.author:
         filename = f"{survey_slug}_responses.csv"
 
