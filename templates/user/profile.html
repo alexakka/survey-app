@@ -76,15 +76,17 @@
         {% for survey in user.survey_set.all %}
             <li>
                 <a href="{% url 'survey_detail' survey.slug %}">
-                    <strong>{{ survey.name }}</strong>
+                    <strong>{{ survey.title }}</strong>
                 </a>
                 <a href="{% url 'responses' survey.slug %}" class="check-responses-btn">
                     Check Responses
                 </a>
                 <a href="{% url 'edit_survey' survey.slug %}" class="edit-survey-btn">
                     Edit Survey
-                </a><br>
+                </a>
                 <a href="{% url 'export_responses_csv' survey.slug %}" class="edit-survey-btn" download> Download
+                </a>
+                <a href="{% url 'edit_profile' %}" class="edit-survey-btn"> Edit Profile
                 </a>
                 Description: {{ survey.description }}<br>
                 Number Of Responses: {{ survey.number_of_responses }}<br>

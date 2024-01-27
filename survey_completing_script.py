@@ -7,6 +7,7 @@ django.setup()
 from django.contrib.auth import get_user_model
 from django.utils import timezone
 from survey.models import Survey, Question, Answer, Response
+from datetime import timedelta
 from faker import Faker
 
 
@@ -20,12 +21,20 @@ def create_user():
     password = fake.password()
     first_name = fake.first_name()
     last_name = fake.last_name()
+    sex = fake.random_element(elements=('M', 'F'))  # Randomly choose 'M' or 'F'
+
+    # Generate a random birthday between 18 and 65 years ago
+    birthday_start = timezone.now() - timedelta(days=65*365)  # 65 years ago
+    birthday_end = timezone.now() - timedelta(days=18*365)  # 18 years ago
+    birthday = fake.date_time_between_dates(birthday_start, birthday_end).date()
 
     user = User.objects.create_user(
         email=email,
         password=password,
         first_name=first_name,
-        last_name=last_name
+        last_name=last_name,
+        sex=sex,  # Assigning the sex field
+        birthday=birthday  # Assigning the birthday field
     )
     return user
 
@@ -60,7 +69,7 @@ def main():
     survey = get_survey(survey_id)
 
     if survey:
-        for _ in range(5):
+        for _ in range(50):
             user = create_user()
             complete_survey(user, survey)
     else:

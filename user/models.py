@@ -29,9 +29,17 @@ class CustomUserManager(UserManager):
 
 
 class User(AbstractBaseUser, PermissionsMixin):
+    SEXES = {
+        "M": "Male",
+        "F": "Female",
+    }
+
     email = models.EmailField(blank=True, default='', unique=True)
     first_name = models.CharField(max_length=255, blank=True, default='')
     last_name = models.CharField(max_length=255, blank=True, default='')
+
+    birthday = models.DateField(blank=True, null=True)
+    sex = models.CharField(max_length=1, choices=SEXES, null=True)
 
     is_active = models.BooleanField(default=True)
     is_superuser = models.BooleanField(default=False)
@@ -55,3 +63,10 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     def get_short_name(self):
         return self.first_name or self.email.split('@')[0]
+
+    def get_age(self):
+        if self.birthday:
+            today = timezone.now().date()
+            age = today.year - self.birthday.year - ((today.month, today.day) < (self.birthday.month, self.birthday.day))
+            return age
+        return None

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ survey.name }} - Complete Survey</title>
+    <title>{{ survey.title }} - Complete Survey</title>
     <style>
         body {
             font-family: 'Arial', sans-serif;
@@ -70,7 +70,7 @@
 </head>
 <body>
 
-<h1>{{ survey.name }} - Complete Survey</h1>
+<h1>{{ survey.title }} - Complete Survey</h1>
 <p>{{ survey.description }}</p>
 
 <form method="post" action="{% url 'submit_response' survey.slug %}">

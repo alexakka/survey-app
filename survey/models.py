@@ -6,7 +6,7 @@ from user.models import User
 
 
 class Survey(models.Model):
-    name = models.CharField(max_length=255, blank=False)
+    title = models.CharField(max_length=255, blank=False)
     description = models.CharField(max_length=1024)
     slug = models.SlugField(unique=True, blank=True)
     number_of_responses = models.IntegerField(default=0)
@@ -31,7 +31,7 @@ class Survey(models.Model):
         return True
 
     def __str__(self):
-        return self.name
+        return self.title
 
 
 class Question(models.Model):
@@ -62,12 +62,3 @@ class Response(models.Model):
     def __str__(self):
         return self.answer.value
 
-
-class Respondent(models.Model):
-    SEXES = {
-        "M": "Male",
-        "F": "Female",
-    }
-
-    age = models.IntegerField(blank=False)
-    sex = models.CharField(max_length=1, choices=SEXES)

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ survey.name }} Details</title>
+    <title>{{ survey.title }} Details</title>
 
     <style>
         body {
@@ -117,7 +117,7 @@
         {% csrf_token %}
 
         <!-- Survey fields here -->
-        <input type="text" name="name" placeholder="Survey Name" required>
+        <input type="text" name="title" placeholder="Survey Title" required>
         <input type="text" name="description"  placeholder="Description" required>
         <!-- Add other survey fields as needed -->
 

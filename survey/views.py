@@ -12,7 +12,7 @@ def create_survey(request):
     if request.method == 'POST':
 
         survey = Survey.objects.create(
-            name=request.POST['name'],
+            title=request.POST['title'],
             description=request.POST['description'],
             author=request.user
         )
@@ -40,10 +40,8 @@ def create_survey(request):
 def edit_survey(request, survey_slug):
     survey = get_object_or_404(Survey, slug=survey_slug)
 
-    if request.method != 'POST':
-        return render(request, 'survey/edit_survey.html', {'survey': survey})
-    else:
-        survey.name = request.POST['name']
+    if request.method == 'POST':
+        survey.title = request.POST['title']
         survey.description = request.POST['description']
 
         question_texts = request.POST.getlist('question_text[]')
@@ -62,6 +60,8 @@ def edit_survey(request, survey_slug):
 
         survey.save()
         return redirect('profile')
+
+    return render(request, 'survey/edit_survey.html', {'survey': survey})
 
 
 def survey_detail(request, survey_slug):
@@ -133,7 +133,7 @@ def export_responses_csv(request, survey_slug):
 
     # Check the survey author
     if request.user == responses[0].survey.author:
-        filename = f"{survey_slug}_responses.csv"
+        filename = f"{survey_slug}-responses.csv"
 
         # Create the HttpResponse object with CSV content.
         response = HttpResponse(content_type='text/csv')
@@ -143,16 +143,19 @@ def export_responses_csv(request, survey_slug):
         writer = csv.writer(response)
 
         # Write header row
-        writer.writerow(['Survey', 'Question', 'Answer', 'Respondent'])
+        writer.writerow(['Survey', 'Question', 'Answer', 'Respondent', 'Sex', 'Birthday', 'Age'])
 
         # Write data rows
         for response_obj in responses:
-            writer.writerow(
-                [response_obj.survey.name,
+            writer.writerow([
+                response_obj.survey.title,
                 response_obj.question.text,
                 response_obj.answer.value,
-                response_obj.respondent.first_name + ' ' + response_obj.respondent.last_name]
-                )
+                response_obj.respondent.first_name + ' ' + response_obj.respondent.last_name,
+                response_obj.respondent.sex,
+                response_obj.respondent.birthday,
+                response_obj.respondent.get_age(),
+                ])
 
         return response
 

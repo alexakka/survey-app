@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Edit Survey: {{ survey.name }}</title>
+    <title>Edit Survey: {{ survey.title }}</title>
     <style>
         body {
             font-family: 'Arial', sans-serif;
@@ -80,7 +80,7 @@
     <form method="post" action="{% url 'edit_survey' survey.slug %}">
         {% csrf_token %}
 
-        <input type="text" id="name" name="name" value="{{ survey.name }}" required>
+        <input type="text" id="name" name="title" value="{{ survey.title }}" required>
         <textarea id="description" name="description" required>{{ survey.description }}</textarea>
 
         {% for question in survey.question_set.all %}

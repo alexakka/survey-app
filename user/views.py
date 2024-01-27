@@ -77,3 +77,19 @@ def logout_view(request):
 def profile(request):
     user = request.user
     return render(request, 'user/profile.html', {'user': user})
+
+
+@login_required
+def edit_profile(request):
+    user = request.user
+
+    if request.method == 'POST':
+        user.email = request.POST['email']
+        user.first_name = request.POST['first_name']
+        user.last_name = request.POST['last_name']
+        user.birthday = request.POST['birthday']
+        user.sex = request.POST['sex']
+        user.save()
+        return redirect('profile')
+
+    return render(request, 'user/edit_profile.html', {'user': request.user})
