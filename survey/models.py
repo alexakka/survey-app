@@ -1,6 +1,7 @@
 from django.db import models
 from django.utils import timezone
 from django.utils.text import slugify
+import datetime
 
 from user.models import User
 
@@ -61,4 +62,24 @@ class Response(models.Model):
 
     def __str__(self):
         return self.answer.value
+
+
+class SpentTime(models.Model):
+    start_time = models.TimeField(default=datetime.time)
+    end_time = models.TimeField(default=datetime.time)  # Change this line
+    survey = models.ForeignKey('Survey', on_delete=models.CASCADE)
+    respondent = models.ForeignKey(User, on_delete=models.CASCADE)
+
+    class Meta:
+        verbose_name = 'SpentTime'
+        verbose_name_plural = 'SpentTime'
+
+    def spent_time(self):
+        start_datetime = datetime.datetime.combine(datetime.date.today(), self.start_time)
+        end_datetime = datetime.datetime.combine(datetime.date.today(), self.end_time)
+
+        return end_datetime - start_datetime
+
+    def __str__(self) -> str:
+        return f"{self.survey.title} | {self.spent_time()} | {self.respondent.get_full_name()}"
 

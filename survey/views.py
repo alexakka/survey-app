@@ -1,10 +1,11 @@
 import csv
+import datetime
 from django.shortcuts import render, get_object_or_404, redirect, HttpResponse
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.urls import reverse
 
-from .models import Survey, Question, Answer, Response
+from .models import Survey, Question, Answer, Response, SpentTime
 
 
 @login_required
@@ -80,11 +81,11 @@ def complete_survey(request, survey_slug):
         # re-initialising the storage to clear it
         request._messages = messages.storage.default_storage(request)
 
-        messages.error(request, "You already complete the survey!")
+        messages.error(request, "You have already completed the survey!")
         return redirect(reverse('survey_detail', args=[survey_slug]))
 
+    request.session['start_time'] = datetime.datetime.now().strftime('%H:%M:%S')
     return render(request, 'survey/complete_survey.html', {'survey': survey})
-
 
 
 def show_all_responses(request, survey_slug):
@@ -101,7 +102,6 @@ def respondent_response(request, survey_slug, respondent_id):
     return render(request, "survey/respondent_response.html", {"responses": responses})
 
 
-
 def submit_response(request, survey_slug):
     if request.method == 'POST':
 
@@ -109,6 +109,15 @@ def submit_response(request, survey_slug):
         # adding one respondent to field
         survey.number_of_responses += 1
         survey.save()
+
+        spent_time = SpentTime.objects.create(
+            start_time=request.session.get('start_time'),
+            end_time=datetime.datetime.now().strftime('%H:%M:%S'),
+            survey=Survey.objects.get(slug=survey_slug),
+            respondent=request.user
+        )
+
+        spent_time.save()
 
         for question in survey.question_set.all():
             answer_id = request.POST.get(f'question_{question.id}')

@@ -73,7 +73,7 @@ def main():
             user = create_user()
             complete_survey(user, survey)
     else:
-        print("Survey could not be found. Exiting.")
+        print("Survey could not be found.")
 
     print('SCRIPT COMPLETED')
 
