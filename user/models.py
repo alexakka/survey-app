@@ -29,10 +29,10 @@ class CustomUserManager(UserManager):
 
 
 class User(AbstractBaseUser, PermissionsMixin):
-    SEXES = {
-        "M": "Male",
-        "F": "Female",
-    }
+    SEXES = [
+        ("M", "Male"),
+        ("F", "Female"),
+    ]
 
     email = models.EmailField(blank=True, default='', unique=True)
     first_name = models.CharField(max_length=255, blank=True, default='')

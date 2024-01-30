@@ -8,6 +8,7 @@ urlpatterns = [
     path('edit_survey/<slug:survey_slug>/', views.edit_survey, name='edit_survey'),
     path('<slug:survey_slug>/', views.survey_detail, name='survey_detail'),
 
+
     # completing survey
     path('<slug:survey_slug>/complete_survey/', views.complete_survey, name='complete_survey'),
     path('submit_response/<slug:survey_slug>/', views.submit_response, name='submit_response'),

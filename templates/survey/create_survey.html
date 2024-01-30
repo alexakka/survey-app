@@ -3,152 +3,62 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ survey.title }} Details</title>
-
+    <title>{{ survey.title }} Create Survey</title>
+    {% load bootstrap5 %}
+    {% bootstrap_css %}
     <style>
-        body {
-            font-family: 'Arial', sans-serif;
-            background-color: #f4f4f4;
-            color: #333;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-        }
 
-        h2 {
-            color: #4285F4; /* Google Blue */
-        }
-
-        ul.messages {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-            font-weight: bold;
-        }
-
-        ul.messages li {
-            margin-bottom: 10px;
-            padding: 8px;
-            border-radius: 5px;
-        }
-
-        ul.messages .success {
-            background-color: #34A853; /* Google Green */
-            color: #fff;
-        }
-
-        ul.messages .error {
-            background-color: #EA4335; /* Google Red */
-            color: #fff;
-        }
-
-        form {
-            margin-top: 20px;
-            width: 80%;
-            max-width: 600px;
-            background-color: #fff;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        }
-
-        label {
-            margin-bottom: 5px;
-            color: #333;
-        }
-
-        input {
-            padding: 8px;
-            margin-bottom: 10px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            width: 100%;
-        }
-
-        button {
-            background-color: #4285F4; /* Google Blue */
-            color: #fff;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-
-        button:hover {
-            background-color: #0056b3;
-        }
-
-        #questions-container {
-            margin-top: 20px;
-        }
-
-        .question-form {
-            margin-bottom: 20px;
-        }
-
-        .answers-container input {
-            margin-bottom: 5px;
-        }
-
-        .add-answer {
-            background-color: #34A853; /* Google Green */
-        }
-
-        .add-answer:hover {
-            background-color: #2E8B57;
-        }
     </style>
 </head>
 <body>
-    <h2>Create a Survey</h2>
+    <div class="container mt-5">
+        <h2 class="text-primary">Create a Survey</h2>
 
-    {% if messages %}
-        <ul class="messages">
-            {% for message in messages %}
-                <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
-            {% endfor %}
-        </ul>
-    {% endif %}
+        {% if messages %}
+            <ul class="list-unstyled">
+                {% for message in messages %}
+                    <li class="alert {% if message.tags %}alert-{{ message.tags }}{% endif %}" role="alert">{{ message }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
 
-    <form method="post" action="{% url 'create_survey' %}" id="surveyForm">
-        {% csrf_token %}
+        <form method="post" action="{% url 'create_survey' %}" id="surveyForm">
+            {% csrf_token %}
 
-        <!-- Survey fields here -->
-        <input type="text" name="title" placeholder="Survey Title" required>
-        <input type="text" name="description"  placeholder="Description" required>
-        <!-- Add other survey fields as needed -->
-
-        <!-- Question forms container -->
-        <div id="questions-container">
-            <!-- Initially, include one question form -->
-            <div class="question-form">
-                <input type="text" name="question_text[]"  placeholder="Question" required>
-
-                <!-- Answer forms container -->
-                <div class="answers-container">
-                    <!-- Include one answer form -->
-                    <input type="text" name="answer_text[]"  placeholder="Answer" required>
-                </div>
-                <!-- End of Answer forms container -->
-
-                <button type="button" class="add-answer">Add Answer</button>
+            <div class="mb-3">
+                <input type="text" class="form-control" name="title" placeholder="Survey Title" required>
             </div>
-            <!-- End of Question form -->
-        </div>
-        <!-- End of Question forms container -->
+            <div class="mb-3">
+                <input type="text" class="form-control" name="description" placeholder="Description" required>
+            </div>
 
-        <button type="button" id="add-question">Add Question</button>
-        <input type="submit" value="Submit">
-    </form>
+            <div id="questions-container">
+                <div class="question-form mb-3">
+                    <input type="text" class="form-control" name="question_text[]" placeholder="Question" required>
 
+                    <div class="answers-container mt-2">
+                        <input type="text" class="form-control" name="answer_text[]" placeholder="Answer" required>
+                    </div>
+
+                    <div class="btn-group mt-2" role="group" aria-label="Add buttons">
+                        <button type="button" class="btn btn-success add-answer me-2">Add Answer</button>
+                        <button type="button" class="btn btn-primary add-question">Add Question</button>
+                    </div>
+                </div>
+            </div>
+        </form>
+
+        <!-- Submit button -->
+        <button type="submit" form="surveyForm" class="btn btn-primary">Submit</button>
+    </div>
+
+    <!-- Bootstrap JavaScript -->
+    {% bootstrap_javascript %}
     <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
     <script>
         $(document).ready(function() {
             // Add more question forms
-            $("#add-question").click(function() {
+            $(".add-question").click(function() {
                 var newQuestionForm = $(".question-form:first").clone();
                 newQuestionForm.find("input[type=text]").val("");
                 newQuestionForm.find(".answers-container").empty(); // Clear answer fields
@@ -157,8 +67,8 @@
 
             // Add more answer fields within a question form
             $("#questions-container").on("click", ".add-answer", function() {
-                var newAnswerField = '<input type="text" name="answer_text[]" placeholder="Answer" required>';
-                $(this).siblings(".answers-container").append(newAnswerField);
+                var newAnswerField = '<input type="text" class="form-control" name="answer_text[]" placeholder="Answer" required>';
+                $(this).parent().siblings(".answers-container").append(newAnswerField);
             });
         });
     </script>
