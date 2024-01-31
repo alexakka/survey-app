@@ -150,24 +150,42 @@ def export_responses_csv(request, survey_slug):
 
         # Create CSV writer
         writer = csv.writer(response)
+        questions = Question.objects.filter(survey__slug=survey_slug)
 
-        # Write header row
-        writer.writerow(['Survey', 'Question', 'Answer', 'Respondent', 'Sex', 'Birthday', 'Age'])
+        writer.writerow(write_columns(len(questions)))
 
-        # Write data rows
-        for response_obj in responses:
-            writer.writerow([
-                response_obj.survey.title,
-                response_obj.question.text,
-                response_obj.answer.value,
-                response_obj.respondent.first_name + ' ' + response_obj.respondent.last_name,
-                response_obj.respondent.sex,
-                response_obj.respondent.birthday,
-                response_obj.respondent.get_age(),
-                ])
+        respondents = Response.objects.values_list('respondent', flat=True).distinct()
+
+        for respondent in respondents:
+            resp = Response.objects.filter(respondent=respondent)
+
+            spent_time = get_object_or_404(SpentTime, survey__slug=survey_slug, respondent=respondent)
+            row = [
+                resp[0].respondent.first_name + ' ' + resp[0].respondent.last_name,
+                resp[0].respondent.get_age(),
+                resp[0].respondent.birthday,
+                resp[0].respondent.sex,
+                spent_time.start_time,
+                spent_time.end_time,
+                spent_time.get_spent_time(),
+                ]
+            for r in resp:
+                row.append(r.question)
+                row.append(r.answer)
+
+            writer.writerow(row)
 
         return response
 
     return HttpResponse('You not the owner of the survey')
 
 
+def write_columns(num_of_questions):
+    columns = ['Respondent', 'Age', 'Birthday', 'Sex', 'Start_time', 'End time', 'Spent_time']
+
+    for i in range(num_of_questions):
+        columns.append(f'Question{i + 1}')
+        columns.append(f'Answer{i + 1}')
+        i += 1
+
+    return columns

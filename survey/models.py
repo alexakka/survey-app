@@ -74,12 +74,12 @@ class SpentTime(models.Model):
         verbose_name = 'SpentTime'
         verbose_name_plural = 'SpentTime'
 
-    def spent_time(self):
+    def get_spent_time(self):
         start_datetime = datetime.datetime.combine(datetime.date.today(), self.start_time)
         end_datetime = datetime.datetime.combine(datetime.date.today(), self.end_time)
 
         return end_datetime - start_datetime
 
-    def __str__(self) -> str:
-        return f"{self.survey.title} | {self.spent_time()} | {self.respondent.get_full_name()}"
+    def __str__(self):
+        return f"{self.start_time} | {self.survey.title} | {self.get_spent_time()} | {self.respondent.get_full_name()}"
 

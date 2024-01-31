@@ -6,9 +6,11 @@ django.setup()
 
 from django.contrib.auth import get_user_model
 from django.utils import timezone
-from survey.models import Survey, Question, Answer, Response
+from survey.models import Survey, Question, Answer, Response, SpentTime
 from datetime import timedelta
 from faker import Faker
+from random import randint
+
 
 
 
@@ -50,17 +52,27 @@ def get_survey(survey_id):
 
 def complete_survey(user, survey):
     questions = survey.question_set.all()
+    spent_time_seconds = randint(30, 180)  # Random time between 30 seconds and 3 minutes
+    start_time = timezone.now()  # Record the start time
+    end_time = start_time + timedelta(seconds=spent_time_seconds)
 
     for question in questions:
         answers = question.answer_set.all()
         chosen_answer = fake.random_element(answers)
 
         Response.objects.create(
-                survey=survey,
-                question=question,
-                answer=chosen_answer,
-                respondent=user
-            )
+            survey=survey,
+            question=question,
+            answer=chosen_answer,
+            respondent=user
+        )
+
+    spent_time = SpentTime.objects.create(
+        survey=survey,
+        start_time=start_time.time(),
+        end_time=end_time.time(),
+        respondent=user
+    )
 
 
 def main():
