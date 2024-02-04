@@ -91,8 +91,9 @@ def complete_survey(request, survey_slug):
 def show_all_responses(request, survey_slug):
     survey = get_object_or_404(Survey, slug=survey_slug)
 
-    all_responses = Response.objects.filter(survey=survey).distinct("respondent")
-    return render(request, "survey/responses.html", {"responses": all_responses})
+    responses = Response.objects.filter(survey=survey).distinct("respondent")
+
+    return render(request, "survey/responses.html", {"responses": responses})
 
 
 def respondent_response(request, survey_slug, respondent_id):

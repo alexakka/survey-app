@@ -54,10 +54,9 @@
     <table border="1">
         <thead>
             <tr>
-                <th>Survey Name</th>
-                <th>Question</th>
-                <th>Answer</th>
                 <th>Respondent</th>
+                <th>Email</th>
+                <th>Age</th>
             </tr>
         </thead>
         <tbody>
@@ -65,10 +64,9 @@
             {% for response in responses %}
 
             <tr>
-                <td><a href="{% url 'respondent_response' response.survey.slug response.respondent.id %}">{{ response.survey.title }}</a></td>
-                <td>{{ response.question.text }}</td>
-                <td>{{ response.answer.value }}</td>
                 <td><a href="{% url 'respondent_response' response.survey.slug response.respondent.id %}">{{ response.respondent.get_full_name }}</a></td>
+                <td>{{ response.respondent.email }}</td>
+                <td>{{ response.respondent.get_age }}</td>
 
             </tr>
             {% endfor %}

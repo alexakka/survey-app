@@ -1,19 +1,19 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth import login, authenticate, logout
-from django.contrib.auth.decorators import login_required
-
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib import messages
+from django.views import View
 
 from .models import User
 
 
-def login_view(request):
-    if request.method == 'POST':
-        email = request.POST['email']
-        password = request.POST['password']
+class LoginView(View):
+    def get(self, request):
+        return render(request, 'user/login.html')
 
-        # re-initialising the storage to clear it
-        request._messages = messages.storage.default_storage(request)
+    def post(self, request):
+        email = request.POST.get('email')
+        password = request.POST.get('password')
 
         if email == '' or password == '':
             messages.error(request, 'Please fill out all fields')
@@ -29,17 +29,15 @@ def login_view(request):
             messages.error(request, 'Invalid email or password')
             return redirect('login')
 
-    return render(request, 'user/login.html')
 
+class SignupView(View):
+    def get(self, request):
+        return render(request, 'user/register.html')
 
-def signup_view(request):
-    if request.method == 'POST':
-        email = request.POST['email']
-        password = request.POST['password']
-        confirm_password = request.POST['confirm_password']
-
-        # re-initialising the storage to clear it
-        request._messages = messages.storage.default_storage(request)
+    def post(self, request):
+        email = request.POST.get('email')
+        password = request.POST.get('password')
+        confirm_password = request.POST.get('confirm_password')
 
         if email == '' or password == '' or confirm_password == '':
             messages.error(request, 'Please fill out all fields')
@@ -60,36 +58,31 @@ def signup_view(request):
         return redirect('index')
 
 
-    return render(request, 'user/register.html')
+class LogoutView(View):
+    def get(self, request):
+        logout(request)
+        messages.success(request, 'You have successfully logged out')
+        return redirect('index')
 
 
-def index(request):
-    return render(request, 'user/index.html')
+class ProfileView(LoginRequiredMixin, View):
+    def get(self, request):
+        user = request.user
+        return render(request, 'user/profile.html', {'user': user})
 
 
-def logout_view(request):
-    logout(request)
-    messages.success(request, 'You have successfully logged out')
-    return redirect('index')
+class EditProfileView(LoginRequiredMixin, View):
+    def get(self, request):
+        user = request.user
+        return render(request, 'user/edit_profile.html', {'user': user})
 
-
-@login_required
-def profile(request):
-    user = request.user
-    return render(request, 'user/profile.html', {'user': user})
-
-
-@login_required
-def edit_profile(request):
-    user = request.user
-
-    if request.method == 'POST':
-        user.email = request.POST['email']
-        user.first_name = request.POST['first_name']
-        user.last_name = request.POST['last_name']
-        user.birthday = request.POST['birthday']
-        user.sex = request.POST['sex']
+    def post(self, request):
+        user = request.user
+        user.email = request.POST.get('email')
+        user.first_name = request.POST.get('first_name')
+        user.last_name = request.POST.get('last_name')
+        user.birthday = request.POST.get('birthday')
+        user.sex = request.POST.get('sex')
         user.save()
-        return redirect('profile')
 
-    return render(request, 'user/edit_profile.html', {'user': request.user})
+        return redirect('profile')
