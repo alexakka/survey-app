@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home</title>
+    <link rel="stylesheet" href="{% static 'home/css/index.css' %}">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link
+    href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i"
+    rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f4f4;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        h2 {
+            color: #4285F4; /* Google Blue */
+            margin-bottom: 10px;
+        }
+
+        p {
+            margin-bottom: 10px;
+        }
+
+        a {
+            color: #4285F4; /* Google Blue */
+            text-decoration: none;
+            margin-right: 10px;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        li {
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h2>Welcome to the Index Page</h2>
+
+    {% if user.is_authenticated %}
+        <p>Hello, {{ user.get_full_name }}! You are logged in.</p>
+        <a href="{% url 'logout' %}">Logout</a>
+    {% else %}
+        <p>You are not logged in.</p>
+        <a href="{% url 'login' %}">Login</a>
+        <a href="{% url 'signup' %}">Sign Up</a>
+    {% endif %}
+
+    <h2>Available Surveys:</h2>
+    <ul>
+        {% for survey in surveys %}
+            <li>
+                <a href="{% url 'survey_detail' survey.slug %}">{{ survey.title }}</a>
+                - {{ survey.description }}
+            </li>
+        {% endfor %}
+    </ul>
+    <div class="chart-pie pt-4 pb-2">
+        <canvas id="myPieChart"></canvas>
+    </div>
+
+    <script>
+        {% comment %} Chart.defaults.global.defaultFontFamily = 'Nunito', '-apple-system,system-ui,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif'; {% endcomment %}
+        {% comment %} Chart.defaults.global.defaultFontColor = '#858796'; {% endcomment %}
+        $(document).ready(function () {
+            $.ajax({
+                url: '{% url "chart_data" "basic-survey" %}', // URL to your Django view
+                type: 'GET', // or 'POST'
+                dataType: 'json',
+                success: function (data) {
+                    // Handle the response from the server
+                    $('#response-message').text(data.question);
+                    console.log('Received JSON data:', data);
+
+
+
+                    // Now that survey_data is available, set up your chart
+                    setupChart(data);
+                },
+                error: function (xhr, errmsg, err) {
+                    // Handle errors
+                    console.log(xhr.status + ": " + xhr.responseText);
+                }
+            });
+
+            // Function to set up the chart
+            function setupChart(data) {
+                var ctx = document.getElementById("myPieChart");
+
+                var firstQuestionData = data[0];
+
+                // Extract labels and data from the first question
+                var labels = Object.keys(firstQuestionData.answers);
+                var data = Object.values(firstQuestionData.answers);
+
+                var colors = generateColors(labels.length);
+                var hoverColors = generateHoverColors(colors);
+
+                var myPieChart = new Chart(ctx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            data: data,
+                            backgroundColor: colors,
+                            hoverBackgroundColor: hoverColors,
+                            hoverBorderColor: "rgba(234, 236, 244, 1)",
+                        }],
+                    },
+                    options: {
+                        maintainAspectRatio: false,
+                        tooltips: {
+                            backgroundColor: "rgb(255,255,255)",
+                            bodyFontColor: "#858796",
+                            borderColor: '#dddfeb',
+                            borderWidth: 1,
+                            xPadding: 15,
+                            yPadding: 15,
+                            displayColors: false,
+                            caretPadding: 10,
+                        },
+                        legend: {
+                            display: false
+                        },
+                        cutoutPercentage: 80,
+                    },
+                });
+            }
+
+            function generateColors(numColors) {
+                var colors = [];
+                for (var i = 0; i < numColors; i++) {
+                    var color = '#' + Math.floor(Math.random() * 16777215).toString(16); // Generate a random hex color
+                    colors.push(color);
+                }
+                return colors;
+            }
+
+            // Dynamically generate hover colors based on the length of the data array
+            function generateHoverColors(colors) {
+                var hoverColors = [];
+                colors.forEach(color => {
+                    var hoverColor = adjustColorBrightness(color, -20); // Adjust brightness for hover effect
+                    hoverColors.push(hoverColor);
+                });
+                return hoverColors;
+            }
+
+            // Function to adjust color brightness for hover effect
+            function adjustColorBrightness(color, amount) {
+                var colorCode = parseInt(color.slice(1), 16);
+                var r = (colorCode >> 16) + amount;
+                var b = ((colorCode >> 8) & 0x00FF) + amount;
+                var g = (colorCode & 0x0000FF) + amount;
+                r = Math.min(Math.max(0, r), 255);
+                g = Math.min(Math.max(0, g), 255);
+                b = Math.min(Math.max(0, b), 255);
+                return "#" + (g | (b << 8) | (r << 16)).toString(16).padStart(6, '0');
+            }
+
+        });
+    </script>
+
+
+
+</body>
+</html>

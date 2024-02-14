@@ -4,14 +4,19 @@ from django.shortcuts import render, get_object_or_404, redirect, HttpResponse
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.urls import reverse
+from django.http import JsonResponse
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.views import View
+from django.views.generic import ListView
 
 from .models import Survey, Question, Answer, Response, SpentTime
 
 
-@login_required
-def create_survey(request):
-    if request.method == 'POST':
+class CreateSurveyView(View):
+    def get(self, request):
+        return render(request, 'survey/create_survey.html')
 
+    def post(self, request):
         survey = Survey.objects.create(
             title=request.POST['title'],
             description=request.POST['description'],
@@ -34,14 +39,14 @@ def create_survey(request):
 
         return redirect('index')
 
-    return render(request, 'survey/create_survey.html')
+class EditSurveView(View):
+    def get(self, request, survey_slug):
+        survey = get_object_or_404(Survey, slug=survey_slug)
+        return render(request, 'survey/edit_survey.html', {'survey': survey})
 
+    def post(self, request, survey_slug):
+        survey = get_object_or_404(Survey, slug=survey_slug)
 
-@login_required
-def edit_survey(request, survey_slug):
-    survey = get_object_or_404(Survey, slug=survey_slug)
-
-    if request.method == 'POST':
         survey.title = request.POST['title']
         survey.description = request.POST['description']
 
@@ -62,38 +67,71 @@ def edit_survey(request, survey_slug):
         survey.save()
         return redirect('profile')
 
-    return render(request, 'survey/edit_survey.html', {'survey': survey})
+class SurveyDetailView(View):
+    def get(self, request, survey_slug):
+        survey = get_object_or_404(Survey, slug=survey_slug)
+        is_author = request.user == survey.author
+        return render(request, 'survey/survey_detail.html', {'survey': survey, 'is_author': is_author})
 
+class PassSurveyView(View):
+    def get(self, request, survey_slug):
+        survey = get_object_or_404(Survey, slug=survey_slug)
 
-def survey_detail(request, survey_slug):
-    survey = get_object_or_404(Survey, slug=survey_slug)
-    is_author = request.user == survey.author
-    return render(request, 'survey/survey_detail.html', {'survey': survey, 'is_author': is_author})
+        respondent = Response.objects.filter(survey=survey, respondent=request.user)
 
+        # check if user already complete a survey
+        if respondent.exists():
+            # re-initialising the storage to clear it
+            request._messages = messages.storage.default_storage(request)
 
-def complete_survey(request, survey_slug):
-    survey = get_object_or_404(Survey, slug=survey_slug)
+            messages.error(request, "You have already completed the survey!")
+            return redirect(reverse('survey_detail', args=[survey_slug]))
 
-    respondent = Response.objects.filter(survey=survey, respondent=request.user)
+        request.session['start_time'] = datetime.datetime.now().strftime('%H:%M:%S')
+        return render(request, 'survey/complete_survey.html', {'survey': survey})
 
-    # check if user already complete a survey
-    if respondent.exists():
-        # re-initialising the storage to clear it
-        request._messages = messages.storage.default_storage(request)
+class SubmitSurveyView(View):
+    def get(self, request, survey_slug):
+        return redirect('pass_survey', survey_slug=survey_slug)
 
-        messages.error(request, "You have already completed the survey!")
-        return redirect(reverse('survey_detail', args=[survey_slug]))
+    def post(self, request, survey_slug):
+        survey = get_object_or_404(Survey, slug=survey_slug)
 
-    request.session['start_time'] = datetime.datetime.now().strftime('%H:%M:%S')
-    return render(request, 'survey/complete_survey.html', {'survey': survey})
+        # adding one respondent to field
+        survey.number_of_responses += 1
+        survey.save()
 
+        SpentTime.objects.create(
+            start_time=request.session.get('start_time'),
+            end_time=datetime.datetime.now().strftime('%H:%M:%S'),
+            survey=Survey.objects.get(slug=survey_slug),
+            respondent=request.user
+        )
 
-def show_all_responses(request, survey_slug):
-    survey = get_object_or_404(Survey, slug=survey_slug)
+        for question in survey.question_set.all():
+            answer_id = request.POST.get(f'question_{question.id}')
+            answer = get_object_or_404(Answer, pk=answer_id)
 
-    responses = Response.objects.filter(survey=survey).distinct("respondent")
+        Response.objects.create(
+                survey=survey,
+                question=question,
+                answer=answer,
+                respondent=request.user
+                )
 
-    return render(request, "survey/responses.html", {"responses": responses})
+        return redirect('index')
+
+class ShowAllResponsesView(ListView):
+    model = Response
+    template_name = "survey/responses.html"
+    context_object_name = "responses"
+
+    def get_queryset(self):
+        survey_slug = self.kwargs.get('survey_slug')
+        survey = get_object_or_404(Survey, slug=survey_slug)
+        responses = Response.objects.filter(survey=survey).distinct("respondent")
+        return responses
+
 
 
 def respondent_response(request, survey_slug, respondent_id):
@@ -103,38 +141,7 @@ def respondent_response(request, survey_slug, respondent_id):
     return render(request, "survey/respondent_response.html", {"responses": responses})
 
 
-def submit_response(request, survey_slug):
-    if request.method == 'POST':
 
-        survey = get_object_or_404(Survey, slug=survey_slug)
-        # adding one respondent to field
-        survey.number_of_responses += 1
-        survey.save()
-
-        spent_time = SpentTime.objects.create(
-            start_time=request.session.get('start_time'),
-            end_time=datetime.datetime.now().strftime('%H:%M:%S'),
-            survey=Survey.objects.get(slug=survey_slug),
-            respondent=request.user
-        )
-
-        spent_time.save()
-
-        for question in survey.question_set.all():
-            answer_id = request.POST.get(f'question_{question.id}')
-            answer = get_object_or_404(Answer, pk=answer_id)
-
-            response = Response(
-                survey=survey,
-                question=question,
-                answer=answer,
-                respondent=request.user
-                )
-            response.save()
-
-        return redirect('index')
-
-    return redirect('complete_survey', survey_slug=survey_slug)
 
 
 @login_required
@@ -190,3 +197,34 @@ def write_columns(num_of_questions):
         i += 1
 
     return columns
+
+
+def chart_data(request, survey_slug):
+    try:
+        survey = Survey.objects.get(slug=survey_slug)
+        questions = survey.question_set.all()
+        chart_data = []
+
+        for question in questions:
+            total_responses = Response.objects.filter(question=question).count()
+            answers = question.answer_set.all()
+            answer_data = {}
+
+            for answer in answers:
+                response_count = Response.objects.filter(question=question, answer=answer).count()
+                if total_responses > 0:
+                    answer_percentage = (response_count / total_responses) * 100
+                else:
+                    answer_percentage = 0
+                answer_data[answer.value] = round(answer_percentage, 2)
+
+            chart_data.append({
+                'question': question.text,
+                'answers': answer_data
+            })
+
+        return JsonResponse(chart_data, safe=False)
+
+    except Survey.DoesNotExist:
+        return JsonResponse({'error': 'Survey does not exist'}, status=404)
+

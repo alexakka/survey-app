@@ -101,7 +101,7 @@
 
     <!-- Use the reverse function to generate the URL for complete_survey -->
     {% if user.is_authenticated %}
-        <a href="{% url 'complete_survey' survey.slug  %}">
+        <a href="{% url 'pass_survey' survey.slug  %}">
             <button class="redirect-button">Complete Survey</button>
         </a>
         {% else %}

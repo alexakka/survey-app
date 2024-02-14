@@ -1,0 +1,42 @@
+{
+    "survey": {
+        "title": "Basic Survey",
+        "description": "Description for basic survey.",
+        "creating_date": "2024-01-22 18:22:06",
+        "starting_date": "2024-01-22 18:22:06",
+        "ending_date": "2024-02-20 17:30:42",
+        "author": "O Kukharyk"
+    },
+    "questions": [
+        {
+            "text": "Where are you from?",
+            "is_mandatory": true,
+            "answers": [
+                "Europe",
+                "Asia",
+                "North America",
+                "Africa"
+            ]
+        },
+        {
+            "text": "How old are you?",
+            "is_mandatory": true,
+            "answers": [
+                "14-17",
+                "18-25",
+                "26-50",
+                "51+"
+            ]
+        },
+        {
+            "text": "How tall are you?(in cm)",
+            "is_mandatory": true,
+            "answers": [
+                "150-170",
+                "171-185",
+                "185-199",
+                "200+"
+            ]
+        }
+    ]
+}

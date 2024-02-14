@@ -1,0 +1,29 @@
+[
+    {
+        "question": "Where are you from?",
+        "answers": {
+            "Europe": 32.0,
+            "Asia": 30.0,
+            "North America": 20.0,
+            "Africa": 18.0
+        }
+    },
+    {
+        "question": "How old are you?",
+        "answers": {
+            "14-17": 28.0,
+            "18-25": 12.0,
+            "26-50": 34.0,
+            "51+": 26.0
+        }
+    },
+    {
+        "question": "How tall are you?(in cm)",
+        "answers": {
+            "150-170": 14.0,
+            "171-185": 30.0,
+            "185-199": 20.0,
+            "200+": 36.0
+        }
+    }
+]
